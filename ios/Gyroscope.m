@@ -15,6 +15,7 @@ RCT_EXPORT_MODULE();
 
     if (self) {
         self->_motionManager = [[CMMotionManager alloc] init];
+        self->_deviceMotion = [[CMDeviceMotion alloc] init];
         self->logLevel = 0;
     }
     return self;
@@ -39,7 +40,7 @@ RCT_REMAP_METHOD(isAvailable,
 
 - (void) isAvailableWithResolver:(RCTPromiseResolveBlock) resolve
                         rejecter:(RCTPromiseRejectBlock) reject {
-    if([self->_motionManager isGyroAvailable])
+    if([self->_motionManager isDeviceMotionAvailable])
     {
         /* Start the accelerometer if it is not active already */
         if([self->_motionManager isGyroActive] == NO)
@@ -62,7 +63,7 @@ RCT_EXPORT_METHOD(setUpdateInterval:(double) interval) {
 
     double intervalInSeconds = interval / 1000;
 
-    [self->_motionManager setGyroUpdateInterval:intervalInSeconds];
+    [self->_motionManager setDeviceMotionUpdateInterval:intervalInSeconds];
 }
 
 RCT_EXPORT_METHOD(setLogLevel:(int) level) {
@@ -74,7 +75,7 @@ RCT_EXPORT_METHOD(setLogLevel:(int) level) {
 }
 
 RCT_EXPORT_METHOD(getUpdateInterval:(RCTResponseSenderBlock) cb) {
-    double interval = self->_motionManager.gyroUpdateInterval;
+    double interval = self->_motionManager.deviceMotionUpdateInterval;
 
     if (self->logLevel > 0) {
         NSLog(@"getUpdateInterval: %f", interval);
@@ -107,26 +108,24 @@ RCT_EXPORT_METHOD(startUpdates) {
         NSLog(@"startUpdates/startGyroUpdates");
     }
 
-    [self->_motionManager startGyroUpdates];
+    [self->_motionManager startDeviceMotionUpdates];
 
     /* Receive the gyroscope data on this block */
-    [self->_motionManager startGyroUpdatesToQueue:[NSOperationQueue mainQueue]
-                                      withHandler:^(CMGyroData *gyroData, NSError *error)
+    [self->_motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue mainQueue]
+                                               withHandler:^(CMDeviceMotion *data, NSError *error)
      {
-         double x = gyroData.rotationRate.x;
-         double y = gyroData.rotationRate.y;
-         double z = gyroData.rotationRate.z;
-         double timestamp = gyroData.timestamp;
+         double x = data.rotationRate.x;
+         double y = data.rotationRate.y;
+         double z = data.rotationRate.z;
 
          if (self->logLevel > 1) {
-             NSLog(@"Updated gyro values: %f, %f, %f, %f", x, y, z, timestamp);
+             NSLog(@"Updated gyro values: %f, %f, %f", x, y, z);
          }
 
          [self sendEventWithName:@"Gyroscope" body:@{
                                                                                      @"x" : [NSNumber numberWithDouble:x],
                                                                                      @"y" : [NSNumber numberWithDouble:y],
                                                                                      @"z" : [NSNumber numberWithDouble:z],
-                                                                                     @"timestamp" : [NSNumber numberWithDouble:timestamp]
                                                                                  }];
      }];
 
