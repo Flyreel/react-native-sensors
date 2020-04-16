@@ -40,10 +40,10 @@ RCT_REMAP_METHOD(isAvailable,
 
 - (void) isAvailableWithResolver:(RCTPromiseResolveBlock) resolve
                         rejecter:(RCTPromiseRejectBlock) reject {
-    if([self->_motionManager isDeviceMotionAvailable])
+    if([self->_motionManager isGryoAvailable])
     {
         /* Start the accelerometer if it is not active already */
-        if([self->_motionManager isGyroActive] == NO)
+        if([self->_motionManager isGryoActive] == NO)
         {
             resolve(@YES);
         } else {
@@ -88,17 +88,15 @@ RCT_EXPORT_METHOD(getData:(RCTResponseSenderBlock) cb) {
     double x = self->_motionManager.gyroData.rotationRate.x;
     double y = self->_motionManager.gyroData.rotationRate.y;
     double z = self->_motionManager.gyroData.rotationRate.z;
-    double timestamp = self->_motionManager.gyroData.timestamp;
 
     if (self->logLevel > 0) {
-        NSLog(@"getData: %f, %f, %f, %f", x, y, z, timestamp);
+        NSLog(@"getData: %f, %f, %f", x, y, z);
     }
 
     cb(@[[NSNull null], @{
                  @"x" : [NSNumber numberWithDouble:x],
                  @"y" : [NSNumber numberWithDouble:y],
-                 @"z" : [NSNumber numberWithDouble:z],
-                 @"timestamp" : [NSNumber numberWithDouble:timestamp]
+                 @"z" : [NSNumber numberWithDouble:z]
              }]
        );
 }

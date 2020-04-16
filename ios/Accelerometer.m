@@ -1,14 +1,12 @@
 //  Accelerometer.m
 
-
+#import "Accelerometer.h"
 #import <React/RCTBridge.h>
 #import <React/RCTEventDispatcher.h>
-#import "Accelerometer.h"
 
 @implementation Accelerometer
 
 @synthesize bridge = _bridge;
-
 RCT_EXPORT_MODULE();
 
 - (id) init {
@@ -17,19 +15,20 @@ RCT_EXPORT_MODULE();
 
     if (self) {
         self->_motionManager = [[CMMotionManager alloc] init];
+        self->_deviceMotion = [[CMDeviceMotion alloc] init];
         self->logLevel = 0;
     }
     return self;
 }
 
-+ (BOOL)requiresMainQueueSetup
-{
-    return NO;
-}
-
 - (NSArray<NSString *> *)supportedEvents
 {
   return @[@"Accelerometer"];
+}
+
++ (BOOL)requiresMainQueueSetup
+{
+    return NO;
 }
 
 RCT_REMAP_METHOD(isAvailable,
@@ -64,7 +63,7 @@ RCT_EXPORT_METHOD(setUpdateInterval:(double) interval) {
 
     double intervalInSeconds = interval / 1000;
 
-    [self->_motionManager setAccelerometerUpdateInterval:intervalInSeconds];
+    [self->_motionManager setDeviceMotionUpdateInterval:intervalInSeconds];
 }
 
 RCT_EXPORT_METHOD(setLogLevel:(int) level) {
@@ -76,7 +75,7 @@ RCT_EXPORT_METHOD(setLogLevel:(int) level) {
 }
 
 RCT_EXPORT_METHOD(getUpdateInterval:(RCTResponseSenderBlock) cb) {
-    double interval = self->_motionManager.accelerometerUpdateInterval;
+    double interval = self->_motionManager.deviceMotionUpdateInterval;
 
     if (self->logLevel > 0) {
         NSLog(@"getUpdateInterval: %f", interval);
@@ -86,20 +85,18 @@ RCT_EXPORT_METHOD(getUpdateInterval:(RCTResponseSenderBlock) cb) {
 }
 
 RCT_EXPORT_METHOD(getData:(RCTResponseSenderBlock) cb) {
-    double x = self->_motionManager.accelerometerData.acceleration.x;
-    double y = self->_motionManager.accelerometerData.acceleration.y;
-    double z = self->_motionManager.accelerometerData.acceleration.z;
-    double timestamp = self->_motionManager.accelerometerData.timestamp;
+    double x = self->_motionManager.accelerometerData.gravity.x;
+    double y = self->_motionManager.accelerometerData.gravity.y;
+    double z = self->_motionManager.accelerometerData.gravity.z;
 
     if (self->logLevel > 0) {
-        NSLog(@"getData: %f, %f, %f, %f", x, y, z, timestamp);
+        NSLog(@"getData: %f, %f, %f", x, y, z);
     }
 
     cb(@[[NSNull null], @{
                  @"x" : [NSNumber numberWithDouble:x],
                  @"y" : [NSNumber numberWithDouble:y],
-                 @"z" : [NSNumber numberWithDouble:z],
-                 @"timestamp" : [NSNumber numberWithDouble:timestamp]
+                 @"z" : [NSNumber numberWithDouble:z]
              }]
        );
 }
@@ -109,26 +106,24 @@ RCT_EXPORT_METHOD(startUpdates) {
         NSLog(@"startUpdates/startAccelerometerUpdates");
     }
 
-    [self->_motionManager startAccelerometerUpdates];
+    [self->_motionManager startDeviceMotionUpdates];
 
     /* Receive the accelerometer data on this block */
-    [self->_motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue]
-                                               withHandler:^(CMAccelerometerData *accelerometerData, NSError *error)
+    [self->_motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue mainQueue]
+                                               withHandler:^(CMDeviceMotion *data, NSError *error)
      {
-         double x = accelerometerData.acceleration.x;
-         double y = accelerometerData.acceleration.y;
-         double z = accelerometerData.acceleration.z;
-         double timestamp = accelerometerData.timestamp;
+         double x = data.gravity.x;
+         double y = data.gravity.y;
+         double z = data.gravity.z;
 
          if (self->logLevel > 1) {
-             NSLog(@"Updated accelerometer values: %f, %f, %f, %f", x, y, z, timestamp);
+             NSLog(@"Updated accelerometer values: %f, %f, %f", x, y, z);
          }
 
          [self sendEventWithName:@"Accelerometer" body:@{
                                                                                    @"x" : [NSNumber numberWithDouble:x],
                                                                                    @"y" : [NSNumber numberWithDouble:y],
-                                                                                   @"z" : [NSNumber numberWithDouble:z],
-                                                                                   @"timestamp" : [NSNumber numberWithDouble:timestamp]
+                                                                                   @"z" : [NSNumber numberWithDouble:z]
                                                                                }];
      }];
 
