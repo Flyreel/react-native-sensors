@@ -15,7 +15,6 @@ RCT_EXPORT_MODULE();
 
     if (self) {
         self->_motionManager = [[CMMotionManager alloc] init];
-        self->_deviceMotion = [[CMDeviceMotion alloc] init];
         self->logLevel = 0;
     }
     return self;
@@ -63,7 +62,7 @@ RCT_EXPORT_METHOD(setUpdateInterval:(double) interval) {
 
     double intervalInSeconds = interval / 1000;
 
-    [self->_motionManager setDeviceMotionUpdateInterval:intervalInSeconds];
+    [self->_motionManager setAccelerometerUpdateInterval:intervalInSeconds];
 }
 
 RCT_EXPORT_METHOD(setLogLevel:(int) level) {
@@ -85,9 +84,9 @@ RCT_EXPORT_METHOD(getUpdateInterval:(RCTResponseSenderBlock) cb) {
 }
 
 RCT_EXPORT_METHOD(getData:(RCTResponseSenderBlock) cb) {
-    double x = self->_motionManager.accelerometerData.gravity.x;
-    double y = self->_motionManager.accelerometerData.gravity.y;
-    double z = self->_motionManager.accelerometerData.gravity.z;
+    double x = self->_motionManager.accelerometerData.acceleration.x;
+    double y = self->_motionManager.accelerometerData.acceleration.y;
+    double z = self->_motionManager.accelerometerData.acceleration.z;
 
     if (self->logLevel > 0) {
         NSLog(@"getData: %f, %f, %f", x, y, z);
@@ -106,15 +105,15 @@ RCT_EXPORT_METHOD(startUpdates) {
         NSLog(@"startUpdates/startAccelerometerUpdates");
     }
 
-    [self->_motionManager startDeviceMotionUpdates];
+    [self->_motionManager startAccelerometerUpdates];
 
     /* Receive the accelerometer data on this block */
-    [self->_motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue mainQueue]
-                                               withHandler:^(CMDeviceMotion *data, NSError *error)
+    [self->_motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue mainQueue]
+                                               withHandler:^(CMAccelerometerData *accelerometerData, NSError *error)
      {
-         double x = data.gravity.x;
-         double y = data.gravity.y;
-         double z = data.gravity.z;
+         double x = accelerometerData.acceleration.x;
+         double y = accelerometerData.acceleration.y;
+         double z = accelerometerData.acceleration.z * -9.8;
 
          if (self->logLevel > 1) {
              NSLog(@"Updated accelerometer values: %f, %f, %f", x, y, z);

@@ -40,10 +40,10 @@ RCT_REMAP_METHOD(isAvailable,
 
 - (void) isAvailableWithResolver:(RCTPromiseResolveBlock) resolve
                         rejecter:(RCTPromiseRejectBlock) reject {
-    if([self->_motionManager isGryoAvailable])
+    if([self->_motionManager isGyroAvailable])
     {
         /* Start the accelerometer if it is not active already */
-        if([self->_motionManager isGryoActive] == NO)
+        if([self->_motionManager isGyroActive] == NO)
         {
             resolve(@YES);
         } else {

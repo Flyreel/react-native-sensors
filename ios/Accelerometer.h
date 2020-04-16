@@ -6,7 +6,6 @@
 
 @interface Accelerometer : RCTEventEmitter <RCTBridgeModule> {
     CMMotionManager *_motionManager;
-    CMDeviceMotion *_deviceMotion;
     int logLevel;
 }
 
