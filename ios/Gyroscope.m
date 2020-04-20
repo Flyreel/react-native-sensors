@@ -88,15 +88,17 @@ RCT_EXPORT_METHOD(getData:(RCTResponseSenderBlock) cb) {
     double x = self->_motionManager.gyroData.rotationRate.x;
     double y = self->_motionManager.gyroData.rotationRate.y;
     double z = self->_motionManager.gyroData.rotationRate.z;
+    double timestamp = self->_motionManager.gyroData.timestamp;
 
     if (self->logLevel > 0) {
-        NSLog(@"getData: %f, %f, %f", x, y, z);
+        NSLog(@"getData: %f, %f, %f, %f", x, y, z, timestamp);
     }
 
     cb(@[[NSNull null], @{
                  @"x" : [NSNumber numberWithDouble:x],
                  @"y" : [NSNumber numberWithDouble:y],
-                 @"z" : [NSNumber numberWithDouble:z]
+                 @"z" : [NSNumber numberWithDouble:z],
+                 @"timestamp" : [NSNumber numberWithDouble:timestamp]
              }]
        );
 }
@@ -115,15 +117,17 @@ RCT_EXPORT_METHOD(startUpdates) {
          double x = data.rotationRate.x;
          double y = data.rotationRate.y;
          double z = data.rotationRate.z;
+         double timestamp = data.timestamp;
 
          if (self->logLevel > 1) {
-             NSLog(@"Updated gyro values: %f, %f, %f", x, y, z);
+             NSLog(@"Updated gyro values: %f, %f, %f, %f", x, y, z, timestamp);
          }
 
          [self sendEventWithName:@"Gyroscope" body:@{
                                                                                      @"x" : [NSNumber numberWithDouble:x],
                                                                                      @"y" : [NSNumber numberWithDouble:y],
                                                                                      @"z" : [NSNumber numberWithDouble:z],
+                                                                                     @"timestamp" : [NSNumber numberWithDouble:timestamp]
                                                                                  }];
      }];
 
