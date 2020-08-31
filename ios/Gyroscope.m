@@ -118,7 +118,7 @@ RCT_EXPORT_METHOD(startUpdates) {
          double x = data.rotationRate.x;
          double y = data.rotationRate.y;
          double z = data.rotationRate.z;
-         double timestamp = [Utils sensorTimestampToEpochMilliseconds:gyroData.timestamp];
+         double timestamp = [Utils sensorTimestampToEpochMilliseconds:data.timestamp];
 
          if (self->logLevel > 1) {
              NSLog(@"Updated gyro values: %f, %f, %f, %f", x, y, z, timestamp);
