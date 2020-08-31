@@ -15,15 +15,16 @@ declare module "react-native-sensors" {
     updateInterval: number
   ) => void;
 
-  interface SensorData {
+  export interface SensorData {
     x: number;
     y: number;
     z: number;
-    timestamp: string;
+    timestamp: number;
   }
 
-  interface BarometerData {
+  export interface BarometerData {
     pressure: number;
+    timestamp: number;
   }
 
   type SensorsBase = {

@@ -3,6 +3,7 @@
 #import "Accelerometer.h"
 #import <React/RCTBridge.h>
 #import <React/RCTEventDispatcher.h>
+#import "Utils.h"
 
 @implementation Accelerometer
 
@@ -87,7 +88,7 @@ RCT_EXPORT_METHOD(getData:(RCTResponseSenderBlock) cb) {
     double x = self->_motionManager.accelerometerData.acceleration.x;
     double y = self->_motionManager.accelerometerData.acceleration.y;
     double z = self->_motionManager.accelerometerData.acceleration.z;
-    double timestamp = self->_motionManager.accelerometerData.timestamp;
+    double timestamp = [Utils sensorTimestampToEpochMilliseconds:self->_motionManager.accelerometerData.timestamp];
 
     if (self->logLevel > 0) {
         NSLog(@"getData: %f, %f, %f, %f", x, y, z, timestamp);
@@ -115,19 +116,19 @@ RCT_EXPORT_METHOD(startUpdates) {
      {
          double x = accelerometerData.acceleration.x;
          double y = accelerometerData.acceleration.y;
-         double z = accelerometerData.acceleration.z * -9.8;
-         double timestamp = accelerometerData.timestamp;
+         double z = accelerometerData.acceleration.z;
+         double timestamp = [Utils sensorTimestampToEpochMilliseconds:accelerometerData.timestamp];
 
          if (self->logLevel > 1) {
              NSLog(@"Updated accelerometer values: %f, %f, %f, %f", x, y, z, timestamp);
          }
 
          [self sendEventWithName:@"Accelerometer" body:@{
-                                                                                   @"x" : [NSNumber numberWithDouble:x],
-                                                                                   @"y" : [NSNumber numberWithDouble:y],
-                                                                                   @"z" : [NSNumber numberWithDouble:z],
-                                                                                   @"timestamp" : [NSNumber numberWithDouble:timestamp]
-                                                                               }];
+                                                           @"x" : [NSNumber numberWithDouble:x],
+                                                           @"y" : [NSNumber numberWithDouble:y],
+                                                           @"z" : [NSNumber numberWithDouble:z],
+                                                           @"timestamp" : [NSNumber numberWithDouble:timestamp]
+                                                       }];
      }];
 
 }
