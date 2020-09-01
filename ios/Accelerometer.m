@@ -116,7 +116,7 @@ RCT_EXPORT_METHOD(startUpdates) {
      {
          double x = accelerometerData.acceleration.x;
          double y = accelerometerData.acceleration.y;
-         double z = accelerometerData.acceleration.z;
+         double z = accelerometerData.acceleration.z * -9.807;
          double timestamp = [Utils sensorTimestampToEpochMilliseconds:accelerometerData.timestamp];
 
          if (self->logLevel > 1) {
